@@ -1,7 +1,7 @@
 # sqlalchemy-challenge
 
 
-## Climate analysis of Honolulu, Hawaii.
+## Climate analysis of Honolulu, Hawaii
 
 Perform data modelling, data engineering, and data analysis using the 6 tables in the csv files provided in the data folder.
 
@@ -28,7 +28,7 @@ SQLAlchemy ORM queries, Pandas, and Matplotlib
 
 -----
 
-## Part 2: Design Your Climate App
+## Part 2: Design Climate App
 Design a Flask API based on the queries 
 
 ### API Static Routes
