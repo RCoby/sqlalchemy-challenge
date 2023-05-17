@@ -108,27 +108,38 @@ def tobs():
 
 
 #5.API Dynamic Route
-# /api/v1.0/<start> and /api/v1.0/<start>/<end>
+#i. Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
+#ii. For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
+#iii. For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive. 
+
 @app.route("/api/v1.0/<start>")
-def start():
+@app.route("/api/v1.0/<start>/<end>")
+def date_daterange(start, end=None):
+    """fetch Min/Max/Avg for the date/date range the user inputs"""
     #open db session
     session = Session(engine)
 
-    output = session.query(Measurement.date,Measurement.tobs).all()
-    # List comprehension solution
-    #result = [{"Date": result[1], "Min": result[0], "Avg": result[2]} for result in output]
+    # convert start and end dates to datetime objects
+    start_date = datetime.strptime(start, "%Y-%m-%d")
+    end_date = datetime.strptime(end, "%Y-%m-%d") if end else None
 
+
+    query = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+        filter(Measurement.date >= start_date)
+
+    if end_date:
+        query = query.filter(Measurement.date <= end_date)
+
+    values = query.all()
     session.close()
 
-    return jsonify(output)
-
-
-    
-#i. Return a JSON list of the minimum temperature, the average temperature, and the maximum temperature for a specified start or start-end range.
-
-#ii. For a specified start, calculate TMIN, TAVG, and TMAX for all the dates greater than or equal to the start date.
-
-#iii. For a specified start date and end date, calculate TMIN, TAVG, and TMAX for the dates from the start date to the end date, inclusive. 
+    result = []
+    for tmin, tavg, tmax in values:
+        result.append({'TMIN': tmin, 'TAVG': round(tavg, 2), 'TMAX': tmax})
+        return jsonify(result)
+     
+    return jsonify({"error": f"The date {start} was not found."}), 404
+       
 
 
 if __name__ == "__main__":
